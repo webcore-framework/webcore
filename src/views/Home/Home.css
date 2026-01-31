@@ -1,0 +1,29 @@
+.root {
+    height: 100%;
+}
+router-view {
+    height: 70%;
+    border: 1px solid rgb(221, 221, 221);
+}
+.root > div {
+    height: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    background-color: antiquewhite;
+}
+a {
+    padding-inline: 0.8em;
+    font-size: 1.8em;
+    color: white;
+    line-height: 1.8em;
+    border-radius: 0.15em;
+    background-color: rgb(238, 85, 58);
+}
+a:hover {
+    background-color: blueviolet;
+}
+a.active {
+    background-color: rgb(50, 50, 218);
+}

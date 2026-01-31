@@ -1,0 +1,23 @@
+{
+  "name": "webcore",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.20.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --build",
+    "lint": "eslint . --fix"
+  },
+  "dependencies": {
+    "@noble/curves": "^2.0.1",
+    "aes-gcm": "^0.0.1",
+    "terser": "^5.44.1",
+    "vite": "^7.2.2"
+  }
+}

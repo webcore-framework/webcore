@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "checkJs": false,
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {"/*": ["./*"]}
+  },
+  "include": ["**/*.js", "Webcore/Security/lib/SHA256.ts"],
+  "exclude": ["node_modules"]
+}

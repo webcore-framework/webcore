@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html class="app" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script type="module" src="/src/main.js"></script>
+    <style>
+        html, body, .container {box-sizing: border-box;height: 100%;}
+        body {margin: 0;}
+        router-view {height: 100%;}
+    </style>
+</head>
+<body>
+<div class="container">
+    <router-view></router-view>
+</div>
+<script type="module">
+    console.log(webcore);
+</script>
+</body>
+</html>
