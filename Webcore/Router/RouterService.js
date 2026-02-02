@@ -64,7 +64,7 @@ export default class RouterService {
     }
 
     anchor(element){
-        if (!(element instanceof HTMLElement)) {return false;}
+        if (!(element instanceof HTMLElement) && !(element instanceof DocumentFragment)) {return false;}
         if (element.childElementCount === 0 && element.parentElement !== null){
             element = element.parentElement
         }
@@ -101,7 +101,7 @@ export default class RouterService {
 
         // 给 router-view 添加默认样式
         const sheet = new CSSStyleSheet();
-        sheet.replaceSync("@layer reset,token,theme,framework,base,layout,component,page,utilitie,override;@layer reset{router-view{box-sizing: border-box;display:block;overflow:auto;scrollbar-width:thin;scroll-behavior:smooth}}");
+        sheet.replaceSync("@layer reset,token,theme,base,layout,component,view,utilitie,override;@layer reset{router-view{box-sizing: border-box;display:block;overflow:auto;scrollbar-width:thin}}");
         document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
 
         // 监听地址栏变化

@@ -1,4 +1,3 @@
-// const webcore = window.webcore;
 import webcore from "../Webcore/App.js";
 // import components from "./components/index.js"
 import router from "./router/index.js"
@@ -7,29 +6,32 @@ import router from "./router/index.js"
 import ViewportService from "/Webcore/Viewport/ViewportService.js";
 import SecurityService from "/Webcore/Security/SecurityService.js";
 
+const app = webcore;
+// const app = window.webcore;
+
 // Configuration 配置
-webcore.setConfig('base','http://localhost/');
+app.setConfig('base','http://localhost/');
 
 // 注册全局组件
-// webcore.useComponent(components);
+// app.useComponent(components);
 
 // 使用路由
-webcore.useRouter(router);
+app.useRouter(router);
 
 // 安装插件
-webcore.usePlugin(ViewportService, {global: true});
-webcore.usePlugin(SecurityService, {global: true});
+app.usePlugin("viewport", ViewportService, {global: true});
+app.usePlugin("security", SecurityService, {global: true});
 
 
 // 初始化
-webcore.initial.open = ()=>{console.log('   8.1 自定义初始化逻辑')};
-webcore.initial.loaded = ()=>{console.log('   8.2 DOM元素加载后的初始化逻辑')};
+app.initial.open = ()=>{console.log('   8.1 自定义初始化逻辑')};
+app.initial.loaded = ()=>{console.log('   8.2 DOM元素加载后的初始化逻辑')};
 
 // 添加全局路由守卫
-// webcore.router.beforeEach((route)=>{
-//     console.log(route)
-//     return true;
-// });
+app.router.beforeEach((route)=>{
+    console.log("全局路由守卫")
+    return true;
+});
 
 // 启动应用程序
-webcore.run();
+app.run();

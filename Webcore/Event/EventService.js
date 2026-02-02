@@ -91,7 +91,7 @@ export default class EventService {
             if (typeof handler === "function") {return handler(...args);}
         } catch (error) {
             console.error("Event emit error:", error);
-            return false;
+            throw error;
         }
         return false;
     }

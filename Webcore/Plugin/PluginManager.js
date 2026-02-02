@@ -10,9 +10,10 @@ export default class PluginManager {
     get(name){return PluginManager.services.resolve(name)}
 
     // 安装插件
-    use(plugin, options = {}) {
+    use(name, plugin, options = {}) {
         if (typeof plugin !== "function"){throw new TypeError("Invalid plugin.")}
-        const name = String.toNotEmptyString(plugin.serviceName, "Plugin service name");
+        name = name || plugin.serviceName;
+        name = String.toNotEmptyString(name, "Plugin service name");
         if (PluginManager.services.has(name)) {
             throw new Error(`The "${name}" plugin has been registered.`);
         }
@@ -30,7 +31,7 @@ export default class PluginManager {
         if (Object.isObject(options)){Object.assign(config, options)}
         PluginManager.services.register(name, plugin, config);
         if (plugin.system === true){
-            Object.freezeProp(Application.instance,name, PluginManager.services.resolve(name))
+            Object.freezeProp(Application.instance, name, PluginManager.services.resolve(name))
         } else if (options.global === true){
             Application.instance[name] = PluginManager.services.resolve(name)
         }

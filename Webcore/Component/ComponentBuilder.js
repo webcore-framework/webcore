@@ -157,6 +157,7 @@ export default class ComponentBuilder extends HTMLElement {
 
     // 公共方法
     querySelector(selector){return this.#root.querySelector(selector)}
+    querySelectorAll(selector){return this.#root.querySelectorAll(selector)}
     selector(selector){return this.#root.querySelector(selector)}
     service(name) {return Object.hasOwn(this.#services, name) ? this.#services[name] : null;}
 

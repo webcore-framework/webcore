@@ -33,11 +33,6 @@ export default class ApplicationBuilder {
         // 系统初始配置
         this.#configuration.set("base", location.origin);
         this.#configuration.set("environment", window.isSecureContext && location.protocol === "http:" ? "development": "production");
-        this.#configuration.set("framework", Object.pure({
-            name: "webcore",
-            version: "1.0.0",
-            author: "huachen"
-        }));
     }
 
     setConfig(key, value) {
@@ -71,6 +66,12 @@ export default class ApplicationBuilder {
 
     build(){
         console.log("5. 各项系统服务已启动");
+        // 添加框架信息
+        this.#application.global.system.set("framework", Object.pure({
+            name: "webcore",
+            version: "0.0.1",
+            author: "huachen"
+        }));
         return this.#application;
     }
 }

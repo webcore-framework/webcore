@@ -13,9 +13,7 @@ export default class Welcome extends webcore.component.builder {
 
     // 生命周期
     onCreated(){
-        // 自己写的组件逻辑，可以在这里依次调用。（这个没有框架约定或限制了，自己随意发挥了）
-        // this.hook();
-        console.log("onCreated")
+        this.hook();
     }
 
     hook(){
@@ -78,23 +76,21 @@ export default class Welcome extends webcore.component.builder {
 
     // 组件挂载前
     onBeforeMount(){
-        console.log("onBeforeMount")
+
     }
 
     // 组件连接时
     onConnected(){
-        console.log("Welcome 组件已经插入到 DOM 树")
-    }
 
+    }
 
     // 组件挂载后
     onMounted(){
-        console.log("onMounted")
+
     }
 
     // 组件断开时
     onDisconnected(){
-        console.log("Welcome 组件从页面中卸载");
         // 组件卸载时要做的回收工作
         this.services.event.delete('welcome');            // 删除向外暴露的方法
     }
@@ -106,13 +102,11 @@ export default class Welcome extends webcore.component.builder {
     }
 
     onAdopted(){
-        console.log('组件被移动到新文档');
+
     }
 
     // 路由前
     onBeforeRoute(route){
-        console.log("onBeforeRoute")
-        console.log(route)
         return true;
     }
 

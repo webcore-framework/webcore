@@ -14,12 +14,9 @@ export default class Application {
 
     getConfig(key){return this.configuration.get(key)}
     setConfig(key,value){return this.configuration.set(key,value)}
-    // addService(name,service,options){Application.services.register(name,service,options);return this;}
     getService(name){return Application.services.resolve(name)}
-    // addSingleton(name,service,deps,opts){Application.services.addSingleton(name,service,deps,opts);return this;}
-    // addTransient(name,service,deps,opts){Application.services.addTransient(name,service,deps,opts);return this;}
     getPlugin(name){return this.plugin.get(name)}
-    usePlugin(plugin,options){this.plugin.use(plugin,options);return this;}
+    usePlugin(name,plugin,options){this.plugin.use(name,plugin,options);return this;}
     hasService(name){return Application.services.has(name)}
     serviceNames(){return Application.services.serviceNames()}
     resolve(names){
