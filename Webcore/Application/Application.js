@@ -14,10 +14,11 @@ export default class Application {
 
     getConfig(key){return this.configuration.get(key)}
     setConfig(key,value){return this.configuration.set(key,value)}
-    getService(name){return Application.services.resolve(name)}
-    getPlugin(name){return this.plugin.get(name)}
-    usePlugin(name,plugin,options){this.plugin.use(name,plugin,options);return this;}
+
     hasService(name){return Application.services.has(name)}
+    getService(name){return Application.services.resolve(name)}
+
+    usePlugin(plugin,options){this.plugin.use(plugin,options);return this;}
     serviceNames(){return Application.services.serviceNames()}
     resolve(names){
         Error.throwIfNotArray(names, "Service names")

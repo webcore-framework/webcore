@@ -10,7 +10,7 @@ import AES_GCM from "./lib/AESGCM.js";
 import HKDF from "./HKDF.js";
 import SecretSession from "./SecretSession.js";
 
-export default class SecurityService {
+class SecurityService {
     static #instance = null;
 
     static singleton = true;
@@ -33,3 +33,27 @@ export default class SecurityService {
         SecurityService.#instance = this;
     }
 }
+
+
+export default {
+    // 插件名称
+    name: "security",
+
+    // 提供服务
+    service: {
+        name: "security",
+        singleton: true,
+        global: true,
+        constructor: SecurityService,
+    },
+
+    // // 插件安装
+    // install: function install(app, options){
+
+    // },
+
+    // // 插件卸载
+    // uninstall: function uninstall(app){
+
+    // }
+};

@@ -3,10 +3,6 @@ import Encoding from "./Encoding.js";
 
 export default class TextService {
     static #instance = null;
-
-    static singleton = true;
-    static system = true;
-    static serviceName = "text";
     // sanitize = null;
 
     constructor(){

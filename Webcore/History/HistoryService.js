@@ -1,7 +1,4 @@
 export default class HistoryService {
-    static singleton = true;
-    static system = true;
-    static serviceName = "history";
 
     constructor(){
         if (HistoryService.instance){return HistoryService.instance;}

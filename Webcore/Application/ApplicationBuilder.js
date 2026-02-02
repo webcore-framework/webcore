@@ -42,36 +42,36 @@ export default class ApplicationBuilder {
 
     addService(service){
         Error.throwIfNotObject(service, "Registration service configuration");
-        if (service.singleton === true){
-            this.#serviceManager.addSingleton(service.name, service.service, service.dependency);
-        } else {
-            this.#serviceManager.addTransient(service.name, service.service, service.dependency);
-        }
+        this.#serviceManager.register(
+            service.name,
+            service.service,
+            {
+                name: service.name,
+                singleton: service.singleton,
+                dependency: service.dependency || [],
+                type: "system",
+                global: service.global || false,
+            }
+        );
         if (service.global === true){
             Object.freezeProp(this.#application, service.name, this.#serviceManager.resolve(service.name));
         }
     }
 
     addSingleton(name, service, deps){
-        this.#serviceManager.addSingleton(name, service, deps);
+        this.#serviceManager.addSingleton(name, service, {dependency: deps});
         this.#registry.push(name);
         return this;
     }
 
     addTransient(name, service, deps) {
-        this.#serviceManager.addTransient(name, service, deps);
+        this.#serviceManager.addTransient(name, service, {dependency: deps});
         this.#registry.push(name);
         return this;
     }
 
     build(){
         console.log("5. 各项系统服务已启动");
-        // 添加框架信息
-        this.#application.global.system.set("framework", Object.pure({
-            name: "webcore",
-            version: "0.0.1",
-            author: "huachen"
-        }));
         return this.#application;
     }
 }

@@ -4,10 +4,6 @@ import ReactiveStore from "./ReactiveStore.js";
 export default class ReactiveService {
     static #instance = null;
 
-    static singleton = true;
-    static system = true;
-    static serviceName = "reactive";
-
     constructor(){
         if (ReactiveService.#instance){
             return ReactiveService.#instance;

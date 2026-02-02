@@ -1,12 +1,10 @@
-export default class ViewportObserver {
-    static #instance = null;
+class ViewportObserver {
 
     constructor(){
-        if (ViewportObserver.#instance){return ViewportObserver.#instance;}
+        if (ViewportObserver.instance){return ViewportObserver.instance;}
         Object.freezeProp(ViewportObserver, "observers", new Set());
         Object.freeze(this);
-        ViewportObserver.#instance = this;
-        Object.freeze(ViewportObserver);
+        Object.freezeProp(ViewportObserver, "instance", this);
     }
 
     removed(target, func, options={childList: true, subtree: true}){
@@ -116,3 +114,17 @@ export default class ViewportObserver {
         ViewportObserver.observers.clear();
     }
 }
+
+
+// 默认导出插件
+export default {
+    // 插件名称
+    name: "observer",
+
+    // 插件安装
+    install: function install(app){
+        if (app){
+            Object.freezeProp(app.viewport, "observe", new ViewportObserver())
+        }
+    },
+};

@@ -9,12 +9,15 @@ export default class GlobalService {
         Object.freezeProp(this,"vars",new GlobalData());
         Object.freezeProp(this,"constants",new GlobalData());
         this.start();
-        Object.freeze(this);
         GlobalService.#instance = this;
         Object.freeze(GlobalService);
     }
 
     start(){
-
+        this.system.set("framework", Object.pure({
+            name: "webcore",
+            version: "0.0.1",
+            author: "huachen"
+        }));
     }
 }

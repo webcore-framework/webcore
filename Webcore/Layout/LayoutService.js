@@ -2,11 +2,6 @@ import Orientation from "./Orientation.js";
 
 export default class LayoutService {
     static #instance = null;
-
-    static singleton = true;
-    static system = true;
-    static serviceName = "layout";
-
     constructor(){
         if (LayoutService.#instance){return LayoutService.#instance}
         Object.freezeProp(this, "orientation", new Orientation());

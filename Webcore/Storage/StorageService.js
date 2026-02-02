@@ -3,11 +3,6 @@ import StorageStore from "./StorageStore.js";
 
 export default class StorageService {
     static #instance = null;
-
-    static singleton = true;
-    static system = true;
-    static serviceName = "storage";
-
     constructor(){
         if (StorageService.#instance){return StorageService.#instance;}
         Object.freezeProp(Map.prototype, "toObject",

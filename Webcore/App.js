@@ -11,6 +11,7 @@ import StateService from "./State/StateService.js";
 import ReactiveService from "./Reactive/ReactiveService.js";
 import StorageService from "./Storage/StorageService.js";
 import UtilityService from "./Utility/UtilityService.js";
+import ViewportService from "./Viewport/ViewportService.js";
 import TextService from "./Text/TextService.js";
 
 console.log("1. 创建应用程序");
@@ -32,6 +33,7 @@ const services = [
     {name: "reactive", service: ReactiveService, singleton: true, global: true},
     {name: "storage", service: StorageService, singleton: true, global: true},
     {name: "utility", service: UtilityService, singleton: true, global: true},
+    {name: "viewport", service: ViewportService, singleton: true, global: true},
     {name: "text", service: TextService, singleton: true, global: true},
 ];
 // 批量注册服务

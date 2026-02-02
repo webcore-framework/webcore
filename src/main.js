@@ -3,7 +3,7 @@ import webcore from "../Webcore/App.js";
 import router from "./router/index.js"
 
 // 导入插件
-import ViewportService from "/Webcore/Viewport/ViewportService.js";
+import ViewportObserver from "/Webcore/Viewport/ViewportObserver.js";
 import SecurityService from "/Webcore/Security/SecurityService.js";
 
 const app = webcore;
@@ -19,8 +19,8 @@ app.setConfig('base','http://localhost/');
 app.useRouter(router);
 
 // 安装插件
-app.usePlugin("viewport", ViewportService, {global: true});
-app.usePlugin("security", SecurityService, {global: true});
+app.usePlugin(ViewportObserver);
+app.usePlugin(SecurityService);
 
 
 // 初始化

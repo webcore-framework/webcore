@@ -24,7 +24,7 @@ export default class ServiceManager {
     }
     resolve(name){
         const service = this.get(name);
-        if (service.singleton) {
+        if (service.singleton === true) {
             if (!this.singletons.has(name)) {
                 this.singletons.set(name, this.#create(service));
             }
@@ -39,18 +39,10 @@ export default class ServiceManager {
         if (typeof service !== "function"){throw new Error(`The "${name}" service to be registered is invalid.`)}
         Error.throwIfNotObject(options, "Service options");
         const config = {singleton: false, dependency: [], ...options};
-        this.services.set(name, {constructor: service, ...config});
+        if (!Array.isArray(config.dependency)){config.dependency = []}
+        this.services.set(name, Object.pure({...config, constructor: service}));
         return this;
     }
-
-    addSingleton(name, service, deps = [], options = {}) {
-        return this.register(name, service, {singleton: true, dependency: deps, ...options});
-    }
-
-    addTransient(name, service, deps = [], options = {}) {
-        return this.register(name, service, {singleton: false, dependency: deps, ...options});
-    }
-
     destroy() {
         this.singletons.forEach(instance => {
             if (typeof instance.destroy === "function") {instance.destroy();}

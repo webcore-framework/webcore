@@ -4,48 +4,62 @@ export default class PluginManager {
 
     constructor(services){
         Object.freezeProp(PluginManager, "services", services);
-        Object.freeze(this);
+        Object.freezeProp(PluginManager, "plugins", new Map())
     }
 
-    get(name){return PluginManager.services.resolve(name)}
+
+    get pluginNames(){
+        return Array.from(PluginManager.plugins.keys());
+    }
 
     // 安装插件
-    use(name, plugin, options = {}) {
-        if (typeof plugin !== "function"){throw new TypeError("Invalid plugin.")}
-        name = name || plugin.serviceName;
-        name = String.toNotEmptyString(name, "Plugin service name");
-        if (PluginManager.services.has(name)) {
-            throw new Error(`The "${name}" plugin has been registered.`);
+    use(plugin, options = {}) {
+        if (!Object.isObject(plugin)){
+            throw new TypeError("Invalid plugin.")
         }
-        if (typeof plugin.install === "function") {
+        let name = plugin.name || options.name;
+        name = String.toNotEmptyString(name, "Plugin name");
+        if (PluginManager.plugins.has(name)){
+            throw new TypeError("The plugin has already been installed.")
+        }
+        PluginManager.plugins.set(name, Object.pure(plugin));
+        if (typeof plugin.install === "function" && plugin.installed !== true) {
             plugin.install(Application.instance, options);
         }
-        const config = Object.pure({
-            singleton: false,
-            dependency: [],
-            type: "plugin",
-            installedAt: new Date()
-        });
-        if (plugin.singleton === true){config.singleton = true}
-        if (Array.isArray(plugin.dependency)){config.dependency = dependency}
-        if (Object.isObject(options)){Object.assign(config, options)}
-        PluginManager.services.register(name, plugin, config);
-        if (plugin.system === true){
-            Object.freezeProp(Application.instance, name, PluginManager.services.resolve(name))
-        } else if (options.global === true){
-            Application.instance[name] = PluginManager.services.resolve(name)
+        if (Object.isObject(plugin.service)){
+            Object.pure(plugin.service);
+            const service = plugin.service;
+            name = String.toNotEmptyString(service.name, "Service name");
+            const config = Object.pure({
+                global: false,
+                singleton: false,
+                dependency: [],
+                constructor: null,
+                type: "plugin",
+                ...service
+            });
+            PluginManager.services.register(name, config.constructor, config);
+            if (config.global === true){
+                Application.instance[name] = PluginManager.services.resolve(name)
+            }
         }
+        plugin.installed = true;
         return this;
     }
 
     // 卸载插件
     unuse(name) {
-        if (!PluginManager.services.has(name)){return this;}
-        const plugin = PluginManager.services.get(name);
-        if (typeof plugin.uninstall === "function") {
+        if (!PluginManager.plugins.has(name)){return this;}
+        const plugin = PluginManager.plugins.get(name);
+        if (plugin.installed === true && typeof plugin.uninstall === "function") {
             plugin.instance.uninstall(Application.instance);
+
         }
-        PluginManager.services.delete(name);
+        if (Object.isObject(plugin.service)){
+            PluginManager.services.delete(plugin.service.name);
+        }
+        PluginManager.plugins.delete(name);
+        plugin.installed = false;
         return this;
     }
 }

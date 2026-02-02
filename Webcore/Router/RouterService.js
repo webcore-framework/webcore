@@ -4,10 +4,6 @@ import Route from "./Route.js";
 
 export default class RouterService {
 
-    static singleton = true;
-    static system = true;
-    static serviceName = "router";
-
     constructor(cache){
         if (RouterService.instance){return RouterService.instance;}
 
