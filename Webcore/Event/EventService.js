@@ -144,36 +144,28 @@ export default class EventService {
         return null;
     };
 
-    debounce(func, delay = 300, immediate = false) {
+    debounce(func, delay = 300) {
         let timer = null;
         return function(...args) {
             const context = this;
-            if (timer) clearTimeout(timer);
-            if (immediate && !timer) {func.apply(context, args); }
+            // 清除之前的定时器
+            if (timer) {clearTimeout(timer)}
+            // 设置新的定时器
             timer = setTimeout(() => {
+                func.apply(context, args);
                 timer = null;
-                if (!immediate) {func.apply(context, args);}
             }, delay);
         };
     }
 
-    throttle(func, delay = 300, trailing = true) {
-        let timer = null;
+    throttle(func, delay = 300) {
         let lastExecTime = 0;
         return function(...args) {
-            const context = this;
             const currentTime = Date.now();
-            const remainingTime = delay - (currentTime - lastExecTime);
-            if (timer) {clearTimeout(timer);timer = null;}
-            if (remainingTime <= 0) {
-                func.apply(context, args);
+            // 如果距离上次执行已经过了 delay 时间
+            if (currentTime - lastExecTime >= delay) {
+                func.apply(this, args);
                 lastExecTime = currentTime;
-            } else if (trailing && !timer) {
-                timer = setTimeout(() => {
-                    func.apply(context, args);
-                    lastExecTime = Date.now();
-                    timer = null;
-                }, remainingTime);
             }
         };
     }

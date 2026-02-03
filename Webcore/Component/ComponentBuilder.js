@@ -203,7 +203,8 @@ export default class ComponentBuilder extends HTMLElement {
         this.#root = this.#shadow.firstElementChild;
         Application?.instance?.router?.bind(root);
         this.#root.replaceChildren(root);
-
+        if (this.#builder.routing !== true && typeof this.onConnected === "function"){this.onConnected();}
+        this.#builder.routing = false;
         // 首次挂载后钩子
         if (typeof this.onMounted === "function"){this.onMounted();}
     }

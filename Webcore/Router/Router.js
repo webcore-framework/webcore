@@ -96,7 +96,6 @@ export default class Router {
             }
             const component = route.component;
             component.routing = true;
-
             if (route.cache === true || (typeof route.cache === "number" && route.cache > 0)){
                 if (!Router.cache.has(route.path)){
                     Router.cache.set(route.path, new component(), {absolute: route.cache === true ? 0 : route.cache})
@@ -109,9 +108,7 @@ export default class Router {
                 view.position = Object.pure({left:0,top:0});
                 views.push(view);
             }
-            component.routing = false;
         }
-
         const root = views[0];
         const target = views.pop();
 

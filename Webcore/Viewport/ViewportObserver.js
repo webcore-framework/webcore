@@ -116,6 +116,9 @@ class ViewportObserver {
 }
 
 
+
+export const observe = new ViewportObserver();
+
 // 默认导出插件
 export default {
     // 插件名称
@@ -124,7 +127,7 @@ export default {
     // 插件安装
     install: function install(app){
         if (app){
-            Object.freezeProp(app.viewport, "observe", new ViewportObserver())
+            Object.freezeProp(app.viewport, "observe", observe)
         }
     },
 };
