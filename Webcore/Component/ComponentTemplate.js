@@ -15,7 +15,7 @@ export default class ComponentTemplate {
             value = ComponentTemplate.compress(value);
             if (!String.isNullOrWhiteSpace(value) && !value.includes("<") && !value.includes(">")){
                 try {
-                    this.url = new URL(value, ComponentService.instance.base);
+                    this.url = URL.create(value, ComponentService.instance.base);
                 } catch  {
                     this.innerHTML = value;
                 }

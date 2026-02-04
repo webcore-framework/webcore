@@ -104,7 +104,9 @@ export default class ComponentService {
 
     async styles(style){
         if (typeof style === "string"){
-            if (style.endsWith(".css")){style = await URL.loader(style);}
+            if (style.endsWith(".css")){
+                style = await URL.loader(URL.create(style, this.base));
+            }
             ComponentStyles.base.push(ComponentStyles.compress(style));
         }
     }

@@ -35,11 +35,21 @@ export default class ApplicationBuilder {
         this.#configuration.set("environment", window.isSecureContext && location.protocol === "http:" ? "development": "production");
     }
 
+    /**
+     * 设置配置
+     * @param {string} key
+     * @param {any} value
+     * @returns {any}
+     */
     setConfig(key, value) {
         this.#configuration.set(key, value);
         return this;
     }
 
+    /**
+     * 注册服务
+     * @param {object} service
+     */
     addService(service){
         Error.throwIfNotObject(service, "Registration service configuration");
         this.#serviceManager.register(
@@ -58,18 +68,10 @@ export default class ApplicationBuilder {
         }
     }
 
-    addSingleton(name, service, deps){
-        this.#serviceManager.addSingleton(name, service, {dependency: deps});
-        this.#registry.push(name);
-        return this;
-    }
-
-    addTransient(name, service, deps) {
-        this.#serviceManager.addTransient(name, service, {dependency: deps});
-        this.#registry.push(name);
-        return this;
-    }
-
+    /**
+     * 构建应用程序
+     * @returns {Application}
+     */
     build(){
         console.log("5. 各项系统服务已启动");
         return this.#application;

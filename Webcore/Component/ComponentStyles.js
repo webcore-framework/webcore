@@ -27,7 +27,7 @@ export default class ComponentStyles {
                         const item = this.styles[i];
                         if (item.endsWith(".css") || (!item.includes("{") && !item.includes("}"))){
                             this.styles[i] = ComponentStyles.compress(
-                                await URL.loader(new URL(item, ComponentService.instance.base))
+                                await URL.loader(URL.create(item, ComponentService.instance.base))
                             );
                         }
                     }
@@ -36,7 +36,7 @@ export default class ComponentStyles {
                     throw new TypeError("Component style loading failed.");
                 }
             } else {
-                heet.replaceSync(ComponentStyles.base.join(""))
+                sheet.replaceSync(ComponentStyles.base.join(""))
             }
 
             this.styleSheet = [sheet];
