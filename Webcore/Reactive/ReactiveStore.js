@@ -7,8 +7,10 @@ export default class ReactiveStore {
         this.#proxy = new Proxy(proxy, {
             get : (target, prop)=>{return target.value;},
             set : (target, prop, value)=>{
-                if (typeof this.onchange === "function"){this.onchange(value, target.value);}
+                let old = target.value;
                 target.value = value;
+                if (typeof this.onchange === "function"){this.onchange(value, old);}
+                old = null;
                 return true;
             },
         });

@@ -52,8 +52,8 @@ export default class ComponentService {
     }
 
     register(component, tag){
-        if (Object.getPrototypeOf(component) !== ComponentBuilder){
-            throw new Error('The component is invalid and is not a "webcore" component.');
+        if (!ComponentBuilder.isPrototypeOf(component) && !HTMLElement.isPrototypeOf(component)){
+            throw new Error('Invalid component.');
         }
         if (String.isNullOrWhiteSpace(tag)){
             if (String.isNullOrWhiteSpace(component.tag)){throw new Error("Missing component tag name.");}
@@ -89,7 +89,7 @@ export default class ComponentService {
     }
 
     use(components){
-        if (Object.getPrototypeOf(components) === ComponentBuilder){
+        if (ComponentBuilder.isPrototypeOf(components) || HTMLElement.isPrototypeOf(components)){
             this.register(components);
         } else {
             this.registerAll(components);

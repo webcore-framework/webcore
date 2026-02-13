@@ -76,7 +76,6 @@ export default class EventService {
         return Object.hasOwn(EventService.handlers.get(target), event.trim());
     }
     emit(target, event, ...args){
-        if (!this.has(target, event)){return false;}
         let handler = null;
         if (typeof target === "string"){
             handler = EventProvider.provider.use(target, event);
