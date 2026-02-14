@@ -163,14 +163,16 @@ export default class Router {
 
     // 地址栏改变
     #history(pathname, route){
-        if (this.mode === "history"){
-            pathname = `${RouterService.instance.base}${pathname}`
-        } else {
-            if (Object.isObject(route.params) && Object.keys(route.params).length > 0){
-                pathname = `${RouterService.instance.base}/#${pathname}?${new URLSearchParams(route.params).toString()}`;
+        if (Object.isObject(route.params) && Object.keys(route.params).length > 0){
+            if (this.mode === "history"){
+                pathname = `${RouterService.instance.base}${pathname}?${new URLSearchParams(route.params).toString()}`;
             } else {
-                pathname = `${RouterService.instance.base}/#${pathname}`;
+                pathname = `${RouterService.instance.base}/#${pathname}?${new URLSearchParams(route.params).toString()}`;
             }
+        } else if (this.mode === "history") {
+            pathname = `${RouterService.instance.base}${pathname}`;
+        } else {
+            pathname = `${RouterService.instance.base}/#${pathname}`;
         }
         if (this.current && this.current.link instanceof HTMLAnchorElement){
             this.current.link.classList.remove("active")
