@@ -20,17 +20,19 @@ export default class ComponentBuilder extends HTMLElement {
 
     constructor(){
         super();
+        // 保存组件构造函数
         this.#builder = Object.getConstructorOf(this);
-        if (Object.hasOwn(this.#builder, "instance")){
-            return this.#builder.instance;
-        }
         this.#name = this.#builder.tag;
+
+        // 在构造函数上设置模板和样式，实现复用
         if (!Object.hasOwn(this.#builder, "template")){this.#builder.template = new ComponentTemplate();}
         if (!Object.hasOwn(this.#builder, "styles")){this.#builder.styles = new ComponentStyles();}
 
+        // 调用 create 方法加载模板和样式，创建组件
         if (typeof this.create === "function"){this.create()}
         this.#loader = this.#initialize();
 
+        // 生命周期钩子函数的异步调用逻辑
         if (this.#builder.routing !== true){
             this.#loader.then(root => {
                 if (typeof this.onCreated === "function" && typeof this.onBeforeMount === "function"){
@@ -56,17 +58,19 @@ export default class ComponentBuilder extends HTMLElement {
     get state(){return this.#state;}
     set state(value){this.#state=value;}
 
-
+    // 设置模板
     template(html) {
         if (this.#builder.template.created === true){return this;}
         this.#builder.template.html = html;
         return this;
     }
+    // 设置样式
     styles(styles) {
         if (this.#builder.styles.created === true){return this;}
         this.#builder.styles.style = styles;
         return this;
     }
+    // 设置模式
     mode(shadowMode = "open") {
         if (!["open", "closed"].includes(shadowMode)) {
             throw new TypeError('Shadow DOM mode must be either "open" or "closed"');
@@ -74,21 +78,25 @@ export default class ComponentBuilder extends HTMLElement {
         this.#mode = shadowMode;
         return this;
     }
+    // 注入服务
     inject(service){
         Error.throwIfNotArray(service, "Component service inject");
         this.#inject = service;
         return this;
     }
+    // 初始化配置
     configuration(config){
-        this.#config = Application.instance.configuration.create(config);
+        this.#config = Object.pure(config);
         return this;
     }
 
 
-    // 声明周期事件
+    // 原生钩子函数的封装
+    // 封装 onConnected
     connectedCallback(){
         if (this.#render && typeof this.onConnected === "function"){return this.onConnected();}
     }
+    // 封装 onAttributeChanged
     async attributeChangedCallback(attr, old, value){
         if (this.#created && typeof this.onAttributeChanged === "function"){
             if (this.#render){
@@ -99,14 +107,16 @@ export default class ComponentBuilder extends HTMLElement {
             }
         }
     }
+    // 封装 onAdopted
     adoptedCallback(){
         if (typeof this.onAdopted === "function"){return this.onAdopted();}
     }
+    // 封装 onDisconnected
     disconnectedCallback(){
         if (typeof this.onDisconnected === "function"){return this.onDisconnected();}
     }
 
-    // 路由接口
+    // 路由接口，框架内部路由系统专用接口。用于拿到组件的 router-view 容器，后续要渲染内容
     async routeCallback(name){
         if (this.#render === true){
             if (this.#views !== null){
@@ -130,6 +140,7 @@ export default class ComponentBuilder extends HTMLElement {
         }
     }
 
+    // 路由之前的回调函数（路由拦截）
     async beforeRouteCallback(route){
         if (this.#render === true){
             if (typeof this.onBeforeRoute !== "function"){return true;}
@@ -201,15 +212,22 @@ export default class ComponentBuilder extends HTMLElement {
         this.#loader = null;
 
         this.#root = this.#shadow.firstElementChild;
+
+        // 为所有 a 元素绑定路由事件
         Application.instance.router.bind(root);
         // Application.instance.router.anchor(root);
+
+        // 最终挂载
         this.#root.replaceChildren(root);
+
         if (this.#builder.routing !== true && typeof this.onConnected === "function"){this.onConnected();}
         this.#builder.routing = false;
+
         // 首次挂载后钩子
         if (typeof this.onMounted === "function"){this.onMounted();}
     }
 
+    // 检查组件标签名称是否正确
     static check(name){
         name = String.toNotEmptyString(name, "Component tag name");
         if (!name.includes("-")){name = `core-${name}`;}

@@ -23,17 +23,20 @@ export default class Router {
 
     constructor(mode, view, routes){
         Object.freezeProp(this, "mode", Router.check(mode));
-        Object.sealProp(this, "current", null);
         if (!(view instanceof RouterView)){
             throw new TypeError('Invalid "router-view" element.');
         }
         Object.freezeProp(this, "view", view);
+        Object.sealProp(this, "current", [view]);
         this.useRoute(routes);
+        const route = new Route(this.mode, "/", null, false);
+        this.routes.pathname(route);
+        Object.sealProp(this, "route", route);
     }
 
     // to
     to(routing){
-        Error.throwIfNotObject(routing)
+        Error.throwIfNotObject(routing, "Routing")
         if (routing.replace === true){
             this.replace(routing);
         } else {
@@ -43,17 +46,18 @@ export default class Router {
     }
 
     push(to){
-        this.#navigate(new Route(this.mode, to, false));
+        this.#navigate(new Route(this.mode, to, this.route, false));
         return true;
     }
 
     replace(to){
-        this.#navigate(new Route(this.mode, to, true));
+        this.#navigate(new Route(this.mode, to, this.route, true));
         return true;
     }
 
     // 路由入口
     async #navigate(route){
+        // console.log(route);
         // 先执行全局路由守卫
         if (typeof RouterService.beforeEach === "function"){
             const next = await RouterService.beforeEach(route);
@@ -83,10 +87,20 @@ export default class Router {
         // 获取真实路径
         const pathname = this.routes.pathname(route);
         if (pathname === null) {return false;}
+        // 改变地址栏
+        this.#history(route);
+
+        // 清空页面
+        const toPath = this.routes.parse(pathname);
+        const fromPath = this.routes.parse(this.route.path);
+        for (let i = 0;i < fromPath.length;i ++){
+            if (toPath[i] !== fromPath[i]){this.current[i].clear()}
+        }
 
         // 获取路由表信息
         routes = this.routes.get(pathname);
         if (routes.length === 0){return false;}
+        this.route = route;
         const views = [];
 
         // 拿到所有组件实例
@@ -109,6 +123,7 @@ export default class Router {
                 views.push(view);
             }
         }
+
         const root = views[0];
         const target = views.pop();
 
@@ -120,21 +135,23 @@ export default class Router {
             } else if (Object.isObject(next) && !String.isNullOrWhiteSpace(next.to)){
                 return this.to(next);
             } else {
-                this.#render(pathname, route, views, root, target);
+                this.#render(route, views, root, target);
             }
         } else {
-            this.#render(pathname, route, views, root, target);
+            this.#render(route, views, root, target);
         }
         return true;
     }
 
     // 路由渲染
-    async #render(pathname, route, views, root, target){
+    async #render(route, views, root, target){
         if (views.length > 0){
             try {
                 const results = await Promise.all(
                     views.map(view => view.routeCallback(route.view))
                 );
+                // 保存当前路径的 router-view
+                this.current = [this.view, ...results];
                 const len = results.length-1;
                 if (len > 0){
                     for (let i = 0;i < len;i ++){
@@ -153,35 +170,24 @@ export default class Router {
             this.view.render(root);
         }
         this.scrollTo(this.view, root.position);
-
         // 路由之后的回调
         if (typeof target.onRouted === "function"){
             target.onRouted(route);
         }
-        this.#history(pathname, route);
     }
 
     // 地址栏改变
-    #history(pathname, route){
-        if (Object.isObject(route.params) && Object.keys(route.params).length > 0){
-            if (this.mode === "history"){
-                pathname = `${RouterService.instance.base}${pathname}?${new URLSearchParams(route.params).toString()}`;
-            } else {
-                pathname = `${RouterService.instance.base}/#${pathname}?${new URLSearchParams(route.params).toString()}`;
-            }
-        } else if (this.mode === "history") {
-            pathname = `${RouterService.instance.base}${pathname}`;
-        } else {
-            pathname = `${RouterService.instance.base}/#${pathname}`;
-        }
-        if (this.current && this.current.link instanceof HTMLAnchorElement){
-            this.current.link.classList.remove("active")
+    #history(route){
+        // 给 link 添加样式
+        if (this.route && this.route.link instanceof HTMLAnchorElement){
+            this.route.link.classList.remove("active")
         }
         if (route.link instanceof HTMLAnchorElement){
             route.link.classList.add("active");
         }
-        this.current = route;
 
+        // 更改地址栏
+        const pathname = `${RouterService.instance.base}${this.mode === "history" ? "" : "/#"}${route.to}`;
         if (route.replace){
             top.history.replaceState(route, "", pathname)
         } else {

@@ -102,18 +102,17 @@ export default class RouterService {
 
         // 监听地址栏变化
         if (this.mode === "hash"){
-            top.onhashchange = function hashchange(event){
+            top.onhashchange = function onhashchange(event){
                 RouterService.router.to(
                     Object.pure({
-                        from: new URL(event.oldURL).hash.replace("#",""),
                         to: new URL(event.newURL).hash.replace("#",""),
                         replace: true
                     })
                 );
             }
         } else if (this.mode === "history"){
-            top.onpopstate = function pathchange(event){
-                RouterService.instance.replace(location.pathname.replace(RouterService.instance.base, ""));
+            top.onpopstate = function onpopstate(event){
+                RouterService.router.replace(`${location.pathname.replace(this.base,"")}${location.search}`)
             };
         }
 

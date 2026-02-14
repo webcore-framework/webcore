@@ -23,12 +23,21 @@ export default class RouteSheet {
         } else if (Object.hasOwn(route, "name") && this.names.has(route.name)) {
             path = this.names.get(route.name).path;
             route.path = path;
+        } else {
+            throw new TypeError("Route path is invalid.");
         }
+
         if (this.paths.has(path)){
             const rule = this.paths.get(path);
             if (Object.hasOwn(rule, "redirect")){
                 path = rule.redirect;
                 route.path = path;
+            }
+
+            if (Object.isObject(route.params) && Object.keys(route.params).length > 0){
+                route.to = `${route.path}?${new URLSearchParams(route.params).toString()}`;
+            } else {
+                route.to =  route.path;
             }
         }
         return path;
@@ -58,7 +67,6 @@ export default class RouteSheet {
     }
 
     set(route, base=""){
-        // route = new Route(route);
         if (Object.hasOwn(route, "redirect")){
             this.paths.set(route.path, new RouteRule(route));
             return true;
