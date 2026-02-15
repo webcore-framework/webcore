@@ -84,11 +84,14 @@ export default class EventService {
         }
         try {
             if (typeof handler === "function") {return handler(...args);}
+            return handler;
         } catch (error) {
             console.error("Event emit error:", error);
             throw error;
         }
-        return false;
+    }
+    async emitAsync(target, event, ...args){
+        return await Promise.resolve(this.emit(target, event, ...args))
     }
 
     // 移除事件监听

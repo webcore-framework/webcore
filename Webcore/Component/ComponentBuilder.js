@@ -86,7 +86,7 @@ export default class ComponentBuilder extends HTMLElement {
     }
     // 初始化配置
     configuration(config){
-        this.#config = Object.pure(config);
+        this.#config = Application.instance.configuration.create(config);
         return this;
     }
 
