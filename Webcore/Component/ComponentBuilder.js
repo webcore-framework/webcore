@@ -208,6 +208,28 @@ export default class ComponentBuilder extends HTMLElement {
                 this.#views.set(name, views[i])
             }
         }
+
+        // 替换插槽内容
+        if (this.children.length > 0){
+            let firstElement = this.firstElementChild;
+            let slot = null;
+            while (firstElement instanceof HTMLElement){
+                if (firstElement.hasAttribute("slot")){
+                    slot = root.querySelector(`slot[name="${firstElement.getAttribute("slot")}"]`);
+                } else {
+                    slot = root.querySelector(`slot:not([name])`);
+                }
+                if (slot){
+                    firstElement.removeAttribute("slot");
+                    slot.replaceWith(firstElement)
+                } else {
+                    firstElement.remove()
+                }
+                firstElement = this.firstElementChild;
+                slot = null;
+            }
+        }
+
         this.#render = true;
         this.#loader = null;
 

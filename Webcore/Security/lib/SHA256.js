@@ -47,6 +47,7 @@ function createHasher(hashCons, info = {}) {
   Object.assign(hashC, info);
   return Object.freeze(hashC);
 }
+
 const oidNist = (suffix) => ({
   oid: Uint8Array.from([6, 9, 96, 134, 72, 1, 101, 3, 4, 2, suffix])
 });

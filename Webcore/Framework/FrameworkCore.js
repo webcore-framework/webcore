@@ -164,7 +164,6 @@ export default class FrameworkCore {
             }
         );
 
-
         // 检查参数是否为 String 类型
         Object.freezeProp(Error, "throwIfNotString",
             function throwIfNotString(target, name = null){

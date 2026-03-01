@@ -1,7 +1,7 @@
-// import Dialog from "./components/Dialog.js";
+import Dialog from "./Dialog/Dialog.js";
 
 const components = [
-    // Dialog
+    Dialog
 ];
 
 export default components;

@@ -1,55 +1,44 @@
+// 安全比较，防止时序攻击
 class SecureCompare {
 
+    constructor(){
+        Object.freezeProp(SecureCompare, "encoder", new TextEncoder());
 
-    compareBytes(buffer1, buffer2) {
-        const a = buffer1 instanceof Uint8Array ? buffer1 : new Uint8Array(buffer1);
-        const b = buffer2 instanceof Uint8Array ? buffer2 : new Uint8Array(buffer2);
+        Object.freezeProp(this, "compareBytes", function compareBytes(bytes1, bytes2) {
+            const a = bytes1 instanceof ArrayBuffer ? new Uint8Array(bytes1) : bytes1;
+            Error.throwIfNotBytes(a, "Bytes1");
+            const b = bytes2 instanceof ArrayBuffer ? new Uint8Array(bytes2) : bytes2;
+            Error.throwIfNotBytes(b, "Bytes2");
 
-        const lenA = a.length;
-        const lenB = b.length;
+            const lengthA = a.length;
+            const lengthB = b.length;
+            let result = lengthA ^ lengthB;
+            const maxLength = Math.max(lengthA, lengthB);
 
-        // 1. 先比较长度（但还是要进行完整比较）
-        let result = lenA ^ lenB; // 如果长度不同，result 不为 0
+            for (let i = 0; i < maxLength; i++) {
+                const byteA = i < lengthA ? a[i] : 0;
+                const byteB = i < lengthB ? b[i] : 0;
+                result |= byteA ^ byteB;
+            }
+            return result === 0;
+        });
 
-        // 2. 比较每个字节（恒定时间）
-        // 使用最大长度，确保比较时间只取决于最大长度，而不是实际差异位置
-        const maxLen = Math.max(lenA, lenB);
+        Object.freezeProp(this, "compare", function compare(str1, str2) {
+            if (typeof str1 === "string" && typeof str2 === "string"){
+                return this.compareBytes(SecureCompare.encoder.encode(str1), SecureCompare.encoder.encode(str2));
+            }
+            return false;
+        });
 
-        for (let i = 0; i < maxLen; i++) {
-            // 如果索引超出数组范围，使用 0 作为默认值
-            const byteA = i < lenA ? a[i] : 0;
-            const byteB = i < lenB ? b[i] : 0;
+        Object.freezeProp(this, "compareHex", function compareHex(hex1, hex2) {
+            return this.compare(hex1.toLowerCase(), hex2.toLowerCase());
+        });
 
-            // 使用位异或和位或操作
-            // 如果有任何字节不同，result 就不为 0
-            result |= byteA ^ byteB;
-        }
-
-        // 3. 返回结果（只有所有字节都相同且长度相同才返回 true）
-        return result === 0;
-    }
-
-    compare(str1, str2) {
-        // 转换为 Uint8Array 确保字节级比较
-        const a = new TextEncoder().encode(str1);
-        const b = new TextEncoder().encode(str2);
-
-        return this.compareBytes(a, b);
-    }
-
-    compareHex(hex1, hex2) {
-        // 十六进制字符串比较前先转换为小写
-        const a = hex1.toLowerCase();
-        const b = hex2.toLowerCase();
-
-        return this.compare(a, b);
-    }
-
-    compareBase64(base64_1, base64_2) {
-        // Base64 比较要确保 padding 一致
-        const a = base64_1.replace(/=+$/, '');
-        const b = base64_2.replace(/=+$/, '');
-
-        return this.compare(a, b);
+        Object.freezeProp(this, "compareBase64", function compareBase64(base64_1, base64_2) {
+            return this.compare(base64_1.replace(/=+$/, ''), base64_2.replace(/=+$/, ''));
+        });
     }
 }
+
+const secureCompare = new SecureCompare();
+export default secureCompare;

@@ -1,10 +1,11 @@
-import Application from "../Application/Application.js";
+import Application from "../../Application/Application.js";
+import ECDH from "./ECDH.js";
 
 class X25519 {
     constructor(){
         Object.freezeProp(this,"name","x25519");
 
-        import("./lib/X25519.js").then(module=>{
+        import("./X25519.js").then(module=>{
             Object.freezeProp(X25519, "x25519", module.default())
         });
 
@@ -31,7 +32,7 @@ class ED25519 {
     constructor(){
         Object.freezeProp(this,"name","ed25519");
 
-        import("./lib/ED25519.js").then(module=>{
+        import("./ED25519.js").then(module=>{
             Object.freezeProp(ED25519, "ed25519", module.default)
         });
 
@@ -93,13 +94,10 @@ class ED25519 {
 
 
 
-export default class CryptoECC {
+export default class ECC {
 
     constructor(){
-
         Object.freezeProp(this, "x25519", new X25519());
         Object.freezeProp(this, "ed25519", new ED25519());
     }
-
-
 }

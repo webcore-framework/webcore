@@ -119,10 +119,10 @@ class GHASH {
     t;
     W;
     windowSize;
-    constructor(key2, expectedLength) {
-        abytes(key2, 16, "key");
-        key2 = copyBytes(key2);
-        const kView = createView(key2);
+    constructor(key, expectedLength) {
+        abytes(key, 16, "key");
+        key = copyBytes(key);
+        const kView = createView(key);
         let k0 = kView.getUint32(0, false);
         let k1 = kView.getUint32(4, false);
         let k2 = kView.getUint32(8, false);
@@ -202,18 +202,18 @@ class GHASH {
         this.s2 = o2;
         this.s3 = o3
     }
-    update(data2) {
+    update(data) {
         aexists(this);
-        abytes(data2);
-        data2 = copyBytes(data2);
-        const b32 = u32(data2);
-        const blocks = Math.floor(data2.length / BLOCK_SIZE$1);
-        const left = data2.length % BLOCK_SIZE$1;
+        abytes(data);
+        data = copyBytes(data);
+        const b32 = u32(data);
+        const blocks = Math.floor(data.length / BLOCK_SIZE$1);
+        const left = data.length % BLOCK_SIZE$1;
         for (let i = 0; i < blocks; i++) {
             this._updateBlock(b32[i * 4 + 0], b32[i * 4 + 1], b32[i * 4 + 2], b32[i * 4 + 3])
         }
         if (left) {
-            ZEROS16.set(data2.subarray(blocks * BLOCK_SIZE$1));
+            ZEROS16.set(data.subarray(blocks * BLOCK_SIZE$1));
             this._updateBlock(ZEROS32[0], ZEROS32[1], ZEROS32[2], ZEROS32[3]);
             clean(ZEROS32)
         }
@@ -248,24 +248,24 @@ class GHASH {
     }
 }
 class Polyval extends GHASH {
-    constructor(key2, expectedLength) {
-        abytes(key2);
-        const ghKey = _toGHASHKey(copyBytes(key2));
+    constructor(key, expectedLength) {
+        abytes(key);
+        const ghKey = _toGHASHKey(copyBytes(key));
         super(ghKey, expectedLength);
         clean(ghKey)
     }
-    update(data2) {
+    update(data) {
         aexists(this);
-        abytes(data2);
-        data2 = copyBytes(data2);
-        const b32 = u32(data2);
-        const left = data2.length % BLOCK_SIZE$1;
-        const blocks = Math.floor(data2.length / BLOCK_SIZE$1);
+        abytes(data);
+        data = copyBytes(data);
+        const b32 = u32(data);
+        const left = data.length % BLOCK_SIZE$1;
+        const blocks = Math.floor(data.length / BLOCK_SIZE$1);
         for (let i = 0; i < blocks; i++) {
             this._updateBlock(swapLE(b32[i * 4 + 3]), swapLE(b32[i * 4 + 2]), swapLE(b32[i * 4 + 1]), swapLE(b32[i * 4 + 0]))
         }
         if (left) {
-            ZEROS16.set(data2.subarray(blocks * BLOCK_SIZE$1));
+            ZEROS16.set(data.subarray(blocks * BLOCK_SIZE$1));
             this._updateBlock(swapLE(ZEROS32[3]), swapLE(ZEROS32[2]), swapLE(ZEROS32[1]), swapLE(ZEROS32[0]));
             clean(ZEROS32)
         }
@@ -285,22 +285,24 @@ class Polyval extends GHASH {
     }
 }
 function wrapConstructorWithKey(hashCons) {
-    const hashC = (msg, key2) => hashCons(key2, msg.length).update(msg).digest();
+    const hashC = (msg, key) => hashCons(key, msg.length).update(msg).digest();
     const tmp = hashCons(new Uint8Array(16), 0);
     hashC.outputLen = tmp.outputLen;
     hashC.blockLen = tmp.blockLen;
-    hashC.create = (key2, expectedLength) => hashCons(key2, expectedLength);
+    hashC.create = (key, expectedLength) => hashCons(key, expectedLength);
     return hashC
 }
-const ghash = wrapConstructorWithKey( (key2, expectedLength) => new GHASH(key2,expectedLength));
-wrapConstructorWithKey( (key2, expectedLength) => new Polyval(key2,expectedLength));
+const ghash = wrapConstructorWithKey( (key, expectedLength) => new GHASH(key,expectedLength));
+
+wrapConstructorWithKey( (key, expectedLength) => new Polyval(key,expectedLength));
 const BLOCK_SIZE = 16;
 const BLOCK_SIZE32 = 4;
 const EMPTY_BLOCK = new Uint8Array(BLOCK_SIZE);
 const POLY = 283;
-function validateKeyLength(key2) {
-    if (![16, 24, 32].includes(key2.length))
-        throw new Error('"aes key" expected Uint8Array of length 16/24/32, got length=' + key2.length)
+
+function validateKeyLength(key) {
+    if (![16, 24, 32].includes(key.length))
+        throw new Error('"aes key" expected Uint8Array of length 16/24/32, got length=' + key.length)
 }
 function mul2(n) {
     return n << 1 ^ POLY & -(n >> 7)
@@ -369,15 +371,15 @@ const xPowers = ( () => {
     return p
 }
 )();
-function expandKeyLE(key2) {
-    abytes(key2);
-    const len = key2.length;
-    validateKeyLength(key2);
+function expandKeyLE(key) {
+    abytes(key);
+    const len = key.length;
+    validateKeyLength(key);
     const {sbox2: sbox2} = tableEncoding;
     const toClean = [];
-    if (!isAligned32(key2))
-        toClean.push(key2 = copyBytes(key2));
-    const k32 = u32(key2);
+    if (!isAligned32(key))
+        toClean.push(key = copyBytes(key));
+    const k32 = u32(key);
     const Nk = k32.length;
     const subByte = n => applySbox(sbox2, n, n, n, n);
     const xk = new Uint32Array(len + 28);
@@ -428,11 +430,11 @@ function encrypt(xk, s0, s1, s2, s3) {
         s3: t3
     }
 }
-function ctr32(xk, isLE2, nonce2, src, dst) {
-    abytes(nonce2, BLOCK_SIZE, "nonce");
+function ctr32(xk, isLE2, nonce, src, dst) {
+    abytes(nonce, BLOCK_SIZE, "nonce");
     abytes(src);
     dst = getOutput(src.length, dst);
-    const ctr = nonce2;
+    const ctr = nonce;
     const c32 = u32(ctr);
     const view = createView(ctr);
     const src32 = u32(src);
@@ -461,13 +463,13 @@ function ctr32(xk, isLE2, nonce2, src, dst) {
     }
     return dst
 }
-function computeTag(fn, isLE2, key2, data2, AAD) {
+function computeTag(fn, isLE2, key, data, AAD) {
     const aadLength = AAD ? AAD.length : 0;
-    const h = fn.create(key2, data2.length + aadLength);
+    const h = fn.create(key, data.length + aadLength);
     if (AAD)
         h.update(AAD);
-    const num = u64Lengths(8 * data2.length, 8 * aadLength, isLE2);
-    h.update(data2);
+    const num = u64Lengths(8 * data.length, 8 * aadLength, isLE2);
+    h.update(data);
     h.update(num);
     const res = h.digest();
     clean(num);
@@ -476,19 +478,19 @@ function computeTag(fn, isLE2, key2, data2, AAD) {
 
 const wrapCipher = (params, constructor) => {
 
-    function AES(key2, ...args) {
-        abytes(key2, void 0, "key");
+    function AES_GCM(key, ...args) {
+        abytes(key, void 0, "key");
         if (!isLE)
             throw new Error("Non little-endian hardware is not yet supported");
         if (params.nonceLength !== void 0) {
-            const nonce2 = args[0];
-            abytes(nonce2, params.varSizeNonce ? void 0 : params.nonceLength, "nonce")
+            const nonce = args[0];
+            abytes(nonce, params.varSizeNonce ? void 0 : params.nonceLength, "nonce")
         }
         const tagl = params.tagLength;
         if (tagl && args[1] !== void 0)
             abytes(args[1], void 0, "AAD");
 
-        const cipher = constructor(key2, ...args);
+        const cipher = constructor(key, ...args);
 
         const checkOutput = (fnLength, output) => {
             if (output !== void 0) {
@@ -501,26 +503,26 @@ const wrapCipher = (params, constructor) => {
         let called = false;
 
         const wrCipher = {
-            encrypt(data2, output) {
+            encrypt(data, output) {
                 if (called)
                     throw new Error("cannot encrypt() twice with same key + nonce");
                 called = true;
-                abytes(data2);
+                abytes(data);
                 checkOutput(cipher.encrypt.length, output);
-                return cipher.encrypt(data2, output)
+                return cipher.encrypt(data, output)
             },
-            decrypt(data2, output) {
-                abytes(data2);
-                if (tagl && data2.length < tagl)
+            decrypt(data, output) {
+                abytes(data);
+                if (tagl && data.length < tagl)
                     throw new Error('"ciphertext" expected length bigger than tagLength=' + tagl);
                 checkOutput(cipher.decrypt.length, output);
-                return cipher.decrypt(data2, output)
+                return cipher.decrypt(data, output)
             }
         };
         return wrCipher
     }
-    Object.assign(AES, params);
-    return AES;
+    Object.assign(AES_GCM, params);
+    return AES_GCM;
 }
 
 const gcm = wrapCipher(
@@ -531,28 +533,28 @@ const gcm = wrapCipher(
         varSizeNonce: true
     },
 
-    function aesgcm(key2, nonce2, AAD) {
-        if (nonce2.length < 8)
+    function aesgcm(key, nonce, AAD) {
+        if (nonce.length < 8)
             throw new Error("aes/gcm: invalid nonce length");
         const tagLength = 16;
-        function _computeTag(authKey, tagMask, data2) {
-            const tag = computeTag(ghash, false, authKey, data2, AAD);
+        function _computeTag(authKey, tagMask, data) {
+            const tag = computeTag(ghash, false, authKey, data, AAD);
             for (let i = 0; i < tagMask.length; i++)
                 tag[i] ^= tagMask[i];
             return tag
         }
         function deriveKeys() {
-            const xk = expandKeyLE(key2);
+            const xk = expandKeyLE(key);
             const authKey = EMPTY_BLOCK.slice();
             const counter = EMPTY_BLOCK.slice();
             ctr32(xk, false, counter, counter, authKey);
-            if (nonce2.length === 12) {
-                counter.set(nonce2)
+            if (nonce.length === 12) {
+                counter.set(nonce)
             } else {
                 const nonceLen = EMPTY_BLOCK.slice();
                 const view = createView(nonceLen);
-                view.setBigUint64(8, BigInt(nonce2.length * 8), false);
-                const g = ghash.create(authKey).update(nonce2).update(nonceLen);
+                view.setBigUint64(8, BigInt(nonce.length * 8), false);
+                const g = ghash.create(authKey).update(nonce).update(nonceLen);
                 g.digestInto(counter);
                 g.destroy()
             }
@@ -579,13 +581,13 @@ const gcm = wrapCipher(
                 clean(...toClean);
                 return out
             },
-            decrypt(ciphertext2) {
+            decrypt(ciphertext) {
                 const {xk: xk, authKey: authKey, counter: counter, tagMask: tagMask} = deriveKeys();
                 const toClean = [xk, authKey, tagMask, counter];
-                if (!isAligned32(ciphertext2))
-                    toClean.push(ciphertext2 = copyBytes(ciphertext2));
-                const data2 = ciphertext2.subarray(0, -tagLength);
-                const passedTag = ciphertext2.subarray(-tagLength);
+                if (!isAligned32(ciphertext))
+                    toClean.push(ciphertext = copyBytes(ciphertext));
+                const data2 = ciphertext.subarray(0, -tagLength);
+                const passedTag = ciphertext.subarray(-tagLength);
                 const tag = _computeTag(authKey, tagMask, data2);
                 toClean.push(tag);
                 if (!equalBytes(tag, passedTag))

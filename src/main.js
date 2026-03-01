@@ -1,5 +1,5 @@
 import webcore from "../Webcore/App.js";
-// import components from "./components/index.js"
+import components from "./components/index.js"
 import router from "./router/index.js"
 
 // 导入插件
@@ -13,7 +13,7 @@ const app = webcore;
 app.setConfig('base','http://localhost/');
 
 // 注册全局组件
-// app.useComponent(components);
+app.useComponent(components);
 
 // 使用路由
 app.useRouter(router);

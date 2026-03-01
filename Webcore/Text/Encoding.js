@@ -5,21 +5,17 @@ export default class Encoding {
     }
 
     stringToBytes(str) {
-        Error.throwIfNotString(str);
+        Error.throwIfNotString(str, "Text");
         return this.encoder.encode(str);
     }
 
     bytesToString(bytes) {
-        if (!(bytes instanceof Uint8Array)){
-            throw new TypeError("Invalid Uint8Array type.")
-        }
+        Error.throwIfNotBytes(bytes, "Bytes");
         return this.decoder.decode(bytes);
     }
 
     bytesToHex(bytes){
-        if (!(bytes instanceof Uint8Array)){
-            throw new TypeError("Invalid Uint8Array type.")
-        }
+        Error.throwIfNotBytes(bytes, "Bytes");
         return Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join("");
     }
 
@@ -51,9 +47,7 @@ export default class Encoding {
     }
 
     bytesToBase64(bytes) {
-        if (!(bytes instanceof Uint8Array)){
-            throw new TypeError("Invalid Uint8Array type.")
-        }
+        Error.throwIfNotBytes(bytes, "Bytes");
         let binary = "";
         if (bytes.byteLength <= 65536){
             for (let i = 0; i < bytes.byteLength; i++) {
